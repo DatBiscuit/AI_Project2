@@ -38,12 +38,52 @@ class PerceptronClassifier:
     
     self.features = trainingData[0].keys() # could be useful later
     # DO NOT ZERO OUT YOUR WEIGHTS BEFORE STARTING TRAINING
+    # Randomizing Weights
+    import random
+    for j in range(len(self.legalLabels)):
+      for f in self.features:
+        self.weights[j][f] = random.randint(0,5)
+
+    #self.setWeights([A]*len(self.legalLabels))
+    #self.weights = [A]*len(self.legalLabels)
+
+
     
     for iteration in range(self.max_iterations):
       print "Starting iteration ", iteration, "..."
+      #print "total iterations", self.max_iterations
+
+      correct = 0;
+      incorrect = 0;
+
       for i in range(len(trainingData)):
-          "*** YOUR CODE HERE ***"
-          util.raiseNotDefined()
+
+        # Score calculation
+        score = util.Counter()
+        for j in range(len(self.legalLabels)):
+          score[j] = trainingData[i] * self.weights[j]
+        prediction = score.argMax()
+
+        #print(score)
+        #print("Prediction:", str(prediction), "Actual:", str(trainingLabels[i]))
+
+        # Update Step
+        if prediction != trainingLabels[i]:
+          #if condition about error function
+          self.weights[prediction] -= trainingData[i]
+          self.weights[trainingLabels[i]] += trainingData[i]
+          incorrect -= 1
+        else:
+          correct += 1
+
+      # Metrics
+      print (str(correct), str(incorrect))
+
+
+
+
+
+      #util.raiseNotDefined()
     
   def classify(self, data ):
     """
@@ -67,7 +107,11 @@ class PerceptronClassifier:
     """
     featuresWeights = []
 
+    #finding the largest weight values in matrix x
+
     "*** YOUR CODE HERE ***"
+
+
     util.raiseNotDefined()
 
     return featuresWeights

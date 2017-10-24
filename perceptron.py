@@ -38,11 +38,15 @@ class PerceptronClassifier:
     
     self.features = trainingData[0].keys() # could be useful later
     # DO NOT ZERO OUT YOUR WEIGHTS BEFORE STARTING TRAINING
+
+
     # Randomizing Weights
     import random
     for j in range(len(self.legalLabels)):
       for f in self.features:
-        self.weights[j][f] = random.randint(0,5)
+        
+        self.weights[j][f] = random.randint(1,2)
+        #print self.weights[j][f]
 
     #self.setWeights([A]*len(self.legalLabels))
     #self.weights = [A]*len(self.legalLabels)

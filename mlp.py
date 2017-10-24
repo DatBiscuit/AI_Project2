@@ -68,10 +68,10 @@ class MLPClassifier:
 
       		for i in range(len(self.legalLabels)):
       			ErrVecOut[i]=(trainingLabels[i]-prediction)
-      			ErrVecOutD[i]= ErrVecOut[i]*(1/(1+pow(math.e,(hidscore*self.hidweights[l]))))*(1-(1/(1+pow(math.e,(hidscore*self.hidweights[l])))))
+      			ErrVecOutD[i]= ErrVecOut[i]*(1/(1+pow(math.e,(hidscore*self.hidweights[i]))))*(1-(1/(1+pow(math.e,(hidscore*self.hidweights[i])))))
 
 
-      		backProp()
+      		backProp(self,0.30,hidscore,trainingData,ErrVecOut,ErrVecOutD)
 
 
 
@@ -85,6 +85,11 @@ class MLPClassifier:
       util.raiseNotDefined()
     return guesses
 
-  def backProp(self,lr,hidscore,trainingLabels):
-    	for i in range(len(self.hidweights)):
-    		hidweights[i]= hidweights[i]+(lr*hidscore*
+  def backProp(self,lr,hidscore,trainingData,ErrVecOut,ErrVecOutD):
+    	for i in range(len(self.legalLabels)):
+    		for j in range(len(HID_LAY)):
+    			hidweights[i][j]= hidweights[i][j]+(lr*hidscore[j]*ErrVecOutD[i])
+
+    	ErrVecInD = util.Counter()
+    	for j in range(HID_LAY):
+    		ErrVecInD[j]= (1/(1+pow(math.e,(trainingData[j]*self.inweights[j]))))*(1-(1/(1+pow(math.e,(trainingData[j]*self.inweights[j])))))

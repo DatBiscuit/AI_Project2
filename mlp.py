@@ -3,93 +3,94 @@
 
 # mlp implementation
 import util
+import math
 PRINT = True
 
 class MLPClassifier:
   """
   mlp classifier
   """
+
   def __init__( self, legalLabels, max_iterations):
-    self.legalLabels = legalLabels
-    self.type = "mlp"
-    self.max_iterations = max_iterations
-    self.inweights = {}
-    self.hidweights = {}
-    HID_LAY = 10
+	self.legalLabels = legalLabels
+	self.type = "mlp"
+	self.max_iterations = max_iterations
+	self.inweights = {}
+	self.hidweights = {}
+	self.HID_LAY = 10
 
-    for x in range(HID_LAY):
-    	self.hidweights[x] = util.Counter()
+	for x in range(self.HID_LAY):
+		self.hidweights[x] = util.Counter()
 
-    for label in legalLabels:
-    	self.inweights[label] = util.Counter()
+	for label in legalLabels:
+		self.inweights[label] = util.Counter()
 
 
-      
+	  
   def train( self, trainingData, trainingLabels, validationData, validationLabels ):
 
-  	self.features = trainingData[0].keys()
+	self.features = trainingData[0].keys()
 
-  	import random
+	import random
 
-	for j in range(HID_LAY):
-      for f in self.features:
-        self.inweights[j][f] = random.randint(1,6)
+	for j in range(self.HID_LAY):
+		for f in self.features:
+			self.inweights[j][f] = random.randint(1,6)
 
-    for j in range(len(self.legalLabels)):
-      for f in range(HID_LAY):
-        self.hidweights[j][f] = random.randint(1,6)
+	for j in range(len(self.legalLabels)):
+		for f in range(self.HID_LAY):
+			self.hidweights[j][f] = random.randint(1,6)
 
+	for iteration in range(self.max_iterations):
+		print "Starting iteration ", iteration, "..."
+		correct = 0;
+		incorrect = 0;
 
+		for i in range(len(trainingData)):
+			hidscore = util.Counter()
+			fscore = util.Counter()
 
+			for j in range(len(self.hidweights)):
+				hidscore[j] = trainingData[i]*self.inweights[j]
+				print hidscore
 
-    for iteration in range(self.max_iterations):
-      print "Starting iteration ", iteration, "..."
+			for l in range(len(self.legalLabels)):
+				#print hidscore
+				#print self.hidweights[l]
+				#print hidscore*self.hidweights[l]
 
-      correct = 0;
-      incorrect = 0;
+				fscore[l] = 1.0/(1.0+pow(math.e,-1.0*(hidscore*self.hidweights[l])))
+				#print fscore
 
+			prediction = fscore.argMax()
 
-      for i in range(len(trainingData)):
-      	#score calc
+			if prediction != trainingLabels[i]:
+				ErrVecOut = util.Counter()
+				ErrVecOutD = util.Counter()
 
-        hidscore = util.Counter()
-        fscore = util.Counter()
-        for j in range(len(self.hidweights)):
-        	hidscore[j] = trainingData[i]*self.inweights[j]
-      	  	
-      	for l in range(len(self.legalLabels)):
-      		fscore[l] = 1/(1+pow(math.e,(hidscore*self.hidweights[l])))
+				for k in range(len(self.legalLabels)):
+					ErrVecOut[k]=(trainingLabels[k]-prediction)
+					ErrVecOutD[k]= ErrVecOut[k]*(1.0/(1.0+pow(math.e,-1.0*(hidscore*self.hidweights[k]))))*(1.0-(1.0/(1.0+pow(math.e,-1.0*(hidscore*self.hidweights[k])))))
 
-      	prediction = fscore.argMax()
-
-      	if prediction != trainingLabels[i]:
-      		ErrVecOut = util.Counter()
-      		ErrVecOutD = util.Counter()
-
-      		for i in range(len(self.legalLabels)):
-      			ErrVecOut[i]=(trainingLabels[i]-prediction)
-      			ErrVecOutD[i]= ErrVecOut[i]*(1/(1+pow(math.e,(hidscore*self.hidweights[i]))))*(1-(1/(1+pow(math.e,(hidscore*self.hidweights[i])))))
-
-
-      		backProp(self,0.30,hidscore,trainingData,ErrVecOut,ErrVecOutD)
-
+				#MLPClassifier.backProp(self,0.30,hidscore,trainingData,ErrVecOut,ErrVecOutD)
 
 
-    #util.raiseNotDefined()
-    
+
+	#util.raiseNotDefined()
+	
   def classify(self, data ):
-    guesses = []
-    for datum in data:
-      # fill predictions in the guesses list
-      "*** YOUR CODE HERE ***"
-      util.raiseNotDefined()
-    return guesses
+	guesses = []
+	for datum in data:
+	  # fill predictions in the guesses list
+	  "*** YOUR CODE HERE ***"
+	  util.raiseNotDefined()
+	return guesses
 
   def backProp(self,lr,hidscore,trainingData,ErrVecOut,ErrVecOutD):
-    	for i in range(len(self.legalLabels)):
-    		for j in range(len(HID_LAY)):
-    			hidweights[i][j]= hidweights[i][j]+(lr*hidscore[j]*ErrVecOutD[i])
+		for i in range(len(self.legalLabels)):
+			for j in range(self.HID_LAY):
+				self.hidweights[i][j]= self.hidweights[i][j]+(lr*hidscore[j]*ErrVecOutD[i])
 
-    	ErrVecInD = util.Counter()
-    	for j in range(HID_LAY):
-    		ErrVecInD[j]= (1/(1+pow(math.e,(trainingData[j]*self.inweights[j]))))*(1-(1/(1+pow(math.e,(trainingData[j]*self.inweights[j])))))
+		ErrVecInD = util.Counter()
+		for j in range(self.HID_LAY):
+			ErrVecInD[j]= (1.0/(1.0+pow(math.e,-1.0*(trainingData[j]*self.inweights[j]))))*(1.0-(1.0/(1.0+pow(math.e,-1.0*(trainingData[j]*self.inweights[j])))))

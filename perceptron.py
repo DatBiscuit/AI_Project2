@@ -42,7 +42,7 @@ class PerceptronClassifier:
     import random
     for j in range(len(self.legalLabels)):
       for f in self.features:
-        self.weights[j][f] = random.randint(0,5)
+        self.weights[j][f] = random.randint(1,6)
 
     #self.setWeights([A]*len(self.legalLabels))
     #self.weights = [A]*len(self.legalLabels)
@@ -110,9 +110,12 @@ class PerceptronClassifier:
     #finding the largest weight values in matrix x
 
     "*** YOUR CODE HERE ***"
+    sortedW = self.weights[label].sortedKeys()
 
+    for x in range(0,100):
+      featuresWeights.append(sortedW[x])
 
-    util.raiseNotDefined()
+    #util.raiseNotDefined()
 
     return featuresWeights
 

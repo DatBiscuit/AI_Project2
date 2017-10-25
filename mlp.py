@@ -49,30 +49,46 @@ class MLPClassifier:
 		for i in range(len(trainingData)):
 			hidscore = util.Counter()
 			fscore = util.Counter()
+			f1score = util.Counter()
+
 
 			for j in range(len(self.hidweights)):
-				hidscore[j] = trainingData[i]*self.inweights[j]
-				print hidscore
+				#hidscore[j] = 10.0/(1.0+pow(math.e,-1.0*(trainingData[i]*self.inweights[j])))
+				#hidscore[j] = math.tanh(trainingData[i]*self.inweights[j])
+				hidscore[j]=math.tanh((trainingData[i]*self.inweights[j]/10000.0))
+			#print hidscore
 
 			for l in range(len(self.legalLabels)):
 				#print hidscore
 				#print self.hidweights[l]
 				#print hidscore*self.hidweights[l]
 
-				fscore[l] = 1.0/(1.0+pow(math.e,-1.0*(hidscore*self.hidweights[l])))
-				#print fscore
+				f1score[l] = math.tanh((hidscore*self.hidweights[l]/10000.0))
+				#fscore[l] = (hidscore*self.hidweights[l])
+				
+			#print fscore
+			#print
+			
 
+			#fscore2 = util.normalize(fscore)
+			#print fscore2
+			#print
+			#print f1score
+			#print
+			f1score2 = util.normalize(f1score)
+			#print f1score2
+			#print
+			
 			prediction = fscore.argMax()
 
 			if prediction != trainingLabels[i]:
 				ErrVecOut = util.Counter()
 				ErrVecOutD = util.Counter()
+				for j in range(len(self.legalLabels)):
+					ErrVecOut[j]=(1.0-f1score2[j])
+					ErrVecOutD[j]= ErrVecOut[j]*(1-pow(f1score2[j],2))
 
-				for k in range(len(self.legalLabels)):
-					ErrVecOut[k]=(trainingLabels[k]-prediction)
-					ErrVecOutD[k]= ErrVecOut[k]*(1.0/(1.0+pow(math.e,-1.0*(hidscore*self.hidweights[k]))))*(1.0-(1.0/(1.0+pow(math.e,-1.0*(hidscore*self.hidweights[k])))))
-
-				#MLPClassifier.backProp(self,0.30,hidscore,trainingData,ErrVecOut,ErrVecOutD)
+				MLPClassifier.backProp(self,0.30,hidscore,trainingData,ErrVecOut,ErrVecOutD)
 
 
 
@@ -81,9 +97,20 @@ class MLPClassifier:
   def classify(self, data ):
 	guesses = []
 	for datum in data:
+		midvectors = util.Counter()
+		for l in range(self.HID_LAY):
+			midvectors[l] = self.inweights[l]*datum
+		fvec = util.Counter()
+		for i in self.legalLabels:
+			fvec[i] = self.hidweights[i]*midvectors
+		guesses.append(fvec.argMax())
+
+
 	  # fill predictions in the guesses list
-	  "*** YOUR CODE HERE ***"
-	  util.raiseNotDefined()
+
+
+	  
+	  #util.raiseNotDefined()
 	return guesses
 
   def backProp(self,lr,hidscore,trainingData,ErrVecOut,ErrVecOutD):
@@ -93,4 +120,11 @@ class MLPClassifier:
 
 		ErrVecInD = util.Counter()
 		for j in range(self.HID_LAY):
-			ErrVecInD[j]= (1.0/(1.0+pow(math.e,-1.0*(trainingData[j]*self.inweights[j]))))*(1.0-(1.0/(1.0+pow(math.e,-1.0*(trainingData[j]*self.inweights[j])))))
+			ErrVecInD[j]= (1-pow(hidscore[j],2))*(self.inweights[j]*ErrVecOutD)
+
+
+		for i in range(self.HID_LAY):
+			for j in range(len(self.features)):
+				self.inweights[i][j]= self.inweights[i][j]+lr+trainingData[i][j]+ErrVecInD[i]
+
+

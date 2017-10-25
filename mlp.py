@@ -79,7 +79,7 @@ class MLPClassifier:
 			#print f1score2
 			#print
 			
-			prediction = fscore.argMax()
+			prediction = f1score2.argMax()
 
 			if prediction != trainingLabels[i]:
 				ErrVecOut = util.Counter()
@@ -88,7 +88,12 @@ class MLPClassifier:
 					ErrVecOut[j]=(1.0-f1score2[j])
 					ErrVecOutD[j]= ErrVecOut[j]*(1-pow(f1score2[j],2))
 
-				MLPClassifier.backProp(self,0.30,hidscore,trainingData,ErrVecOut,ErrVecOutD)
+				MLPClassifier.backProp(self,10.0,hidscore,trainingData,ErrVecOut,ErrVecOutD)
+				incorrect+=1
+			else:
+				correct+=1
+
+			print(str(correct),str(incorrect))
 
 
 
